@@ -64,11 +64,23 @@ export class Game {
       xStart = event.screenX
       yStart = event.screenY
     }))
-    cells.forEach(cell => cell.addEventListener('drag', e => {
+    // cells.forEach(cell => cell.addEventListener('drag', e => {
+    //   const event = e as DragEvent
+    //   if(Math.abs(xStart - event.screenX) > 150 || Math.abs(yStart - event.screenY) > 150){
+    //     const target = event.currentTarget as HTMLElement
+
+    //   }
+    // }))
+    cells.forEach(cell => cell.addEventListener('dragover', e => {
       const event = e as DragEvent
-      if(Math.abs(xStart - event.screenX) > 150 || Math.abs(yStart - event.screenY) > 150){
-        console.log(event);
-      }
+      event.preventDefault()//for drop event work
+
+    }))
+    cells.forEach(cell => cell.addEventListener('drop', e => {
+      const target = e.currentTarget as HTMLElement
+      const id = +target.id
+      const row = Math.ceil(id / this.column)
+
     }))
     cells.forEach(cell => cell.addEventListener('dragend', e => {
       const event = e as DragEvent
@@ -86,20 +98,20 @@ export class Game {
       else if (yEnd > yStart && yEnd - yStart > 50 && Math.abs(xStart - xEnd) <= 100) {
         direction = 'down'
       }
-      
+
       this.moveTo(direction, event.currentTarget as HTMLElement)
 
-      console.log(event);
-      
+      // console.log(event);
+
 
     }))
   }
 
   moveTo(direction: string, target: HTMLElement) {
     const id = +target.id
-    const rowId = Math.ceil(id / this.column) - 1
+    const cell = this.findCell(id)
+    const rowId = cell.row - 1
     const cellId = this.board[rowId].findIndex(cell => cell.index == id)
-    const cell = this.board[rowId][cellId]
     const currentValue = cell.value
 
     switch (direction) {
@@ -128,40 +140,67 @@ export class Game {
     this.render()
   }
 
-  hasFour() {
-    for (let i = 0; i < this.row; i++) {
-      const currentRow = this.board[i]
+  hasFour(row?: number, column?: number) {
+    if (row && column) {
+      const currentCell = this.board[row - 1][column - 1]
+      const currentValue = currentCell.value
       let qty = 0
-      for (let j = 0; j < currentRow.length - 1; j++) {
-        const currentCell = currentRow[j]
-        const nextCell = currentRow[j + 1]
-        if (currentCell.value === nextCell.value) {
-          qty++
-          if (qty === 3) {
-            return true
-          }
-        }
-        else if (currentCell.value !== nextCell.value) {
-          qty = 0
+      for (let i = 0; i < this.row - 1; i++) {
+        this.board[i][column - 1].value === currentValue && this.board[i + 1][column - 1].value === currentValue ? qty++ : qty = 0
+        if (qty === 3) {
+          return true
         }
       }
-    }
-    for (let i = 0; i < this.column; i++) {
-      let qty = 0
-      for (let j = 0; j < this.row - 1; j++) {
-        const currentCell = this.board[j][i]
-        const nextCell = this.board[j + 1][i]
-        if (currentCell.value === nextCell.value) {
-          qty++
-          if (qty === 3) {
-            return true
-          }
-        }
-        else if (currentCell.value !== nextCell.value) {
-          qty = 0
+      for (let i = 0; i < this.column - 1; i++) {
+        this.board[row - 1][i].value === currentValue && this.board[row - 1][i + 1].value === currentValue ? qty++ : qty = 0
+        if (qty === 3) {
+          return true
         }
       }
+      return false
     }
-    return false
+    else {
+      for (let i = 0; i < this.row; i++) {
+        const currentRow = this.board[i]
+        let qty = 0
+        for (let j = 0; j < this.column - 1; j++) {
+          const currentCell = currentRow[j]
+          const nextCell = currentRow[j + 1]
+          if (currentCell.value === nextCell.value) {
+            qty++
+            if (qty === 3) {
+              return true
+            }
+          }
+          else if (currentCell.value !== nextCell.value) {
+            qty = 0
+          }
+        }
+      }
+      for (let i = 0; i < this.column; i++) {
+        let qty = 0
+        for (let j = 0; j < this.row - 1; j++) {
+          const currentCell = this.board[j][i]
+          const nextCell = this.board[j + 1][i]
+          if (currentCell.value === nextCell.value) {
+            qty++
+            if (qty === 3) {
+              return true
+            }
+          }
+          else if (currentCell.value !== nextCell.value) {
+            qty = 0
+          }
+        }
+      }
+      return false
+    }
+
+  }
+
+  findCell(id: number): Cell {
+    const rowId = Math.ceil(id / this.column) - 1
+    const columnId = (id % this.column || this.column) - 1
+    return this.board[rowId][columnId]
   }
 }
