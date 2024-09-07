@@ -64,15 +64,6 @@ export class Game {
       xStart = event.screenX
       yStart = event.screenY
     }))
-    // cells.forEach(cell => cell.addEventListener('dragover', e => {
-    //   const event = e as DragEvent
-    //   event.preventDefault()//for drop event work
-
-    // }))
-    // cells.forEach(cell => cell.addEventListener('drop', e => {
-    //   const target = e.currentTarget as HTMLElement
-    //   const id = +target.id      
-    // }))
     cells.forEach(cell => cell.addEventListener('dragend', e => {
       const event = e as DragEvent
       const xEnd = event.screenX
@@ -91,13 +82,8 @@ export class Game {
       }
 
       this.moveTo(direction, event.currentTarget as HTMLElement)
-
-      if(this.hasFour()){
-
-      }
-      // console.log(event);
-
-
+      this.hasFour({ clear: true })
+      this.render()
     }))
   }
 
@@ -134,23 +120,7 @@ export class Game {
     this.render()
   }
 
-  hasFour(row?: number, column?: number) {
-    // const currentCell = this.board[row - 1][column - 1]
-    // const currentValue = currentCell.value
-    // let qty = 0
-    // for (let i = 0; i < this.row - 1; i++) {
-    //   this.board[i][column - 1].value === currentValue && this.board[i + 1][column - 1].value === currentValue ? qty++ : qty = 0
-    //   if (qty === 3) {
-    //     return true
-    //   }
-    // }
-    // for (let i = 0; i < this.column - 1; i++) {
-    //   this.board[row - 1][i].value === currentValue && this.board[row - 1][i + 1].value === currentValue ? qty++ : qty = 0
-    //   if (qty === 3) {
-    //     return true
-    //   }
-    // }
-    // return false
+  hasFour(options = { clear: false }) {
 
     for (let i = 0; i < this.row; i++) {
       const currentRow = this.board[i]
@@ -158,14 +128,10 @@ export class Game {
       for (let j = 0; j < this.column - 1; j++) {
         const currentCell = currentRow[j]
         const nextCell = currentRow[j + 1]
-        if (currentCell.value === nextCell.value) {
-          qty++
-          if (qty === 3) {
-            return true
-          }
-        }
-        else if (currentCell.value !== nextCell.value) {
-          qty = 0
+        currentCell.value === nextCell.value ? qty++ : qty = 0
+        if (qty === 3) {
+          options.clear && this.clear(currentCell.value, this.board[i])
+          return true
         }
       }
     }
@@ -174,14 +140,10 @@ export class Game {
       for (let j = 0; j < this.row - 1; j++) {
         const currentCell = this.board[j][i]
         const nextCell = this.board[j + 1][i]
-        if (currentCell.value === nextCell.value) {
-          qty++
-          if (qty === 3) {
-            return true
-          }
-        }
-        else if (currentCell.value !== nextCell.value) {
-          qty = 0
+        currentCell.value === nextCell.value ? qty++ : qty = 0
+        if (qty === 3) {
+          options.clear && this.clear(currentCell.value, this.board.map(row => row[i]))
+          return true
         }
       }
     }
@@ -192,5 +154,9 @@ export class Game {
     const rowId = Math.ceil(id / this.column) - 1
     const columnId = (id % this.column || this.column) - 1
     return this.board[rowId][columnId]
+  }
+
+  clear(val : string, arr: Cell[]){
+    arr.forEach(cell => cell.value === val && cell.setColor())
   }
 }
