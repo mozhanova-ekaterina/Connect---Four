@@ -1,14 +1,14 @@
 import { colors } from "./colors"
 
 export class Cell {
-  index: number
+  id: number
   colors: string[] = colors
   value: string = ''
-  column: number
+  index: number
   row: number
-  constructor(index: number, column: number, row: number) {
-    this.index = index
-    this.column = column
+  constructor(id: number, column: number, row: number) {
+    this.id = id
+    this.index = column - 1
     this.row = row
   }
 
