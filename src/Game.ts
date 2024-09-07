@@ -27,13 +27,9 @@ export class Game {
 
     this.board.forEach(row => row.forEach(cell => cell.setColor()))
 
-    while (this.hasFour()) {
+    while (this.connectFour()) {
       this.board.forEach(row => row.forEach(cell => cell.setColor()))
     }
-
-    // console.log('BOARD', this.board);
-    // console.log('hasFour', this.hasFour());
-
   }
 
   render() {
@@ -45,18 +41,18 @@ export class Game {
         boardElement?.insertAdjacentHTML('beforeend',
           `
             <div class='cell' id='${cell.id}' data-value='${cell.value}' >
-              <div class='circle' draggable="true" style='background:${cell.value}'>${cell.id}</div>
+              <div class='circle' draggable="true" style='background:${cell.value}'></div>
             </div>
           `
         )
       )
     }))
     this.moveHandler()
+    this.connectFour({ clear: true })
   }
 
   moveHandler() {
     const cells = document.querySelectorAll('.cell')
-    let direction = ''
     let xStart = 0
     let yStart = 0
     cells.forEach(cell => cell.addEventListener('dragstart', e => {
@@ -68,30 +64,22 @@ export class Game {
       const event = e as DragEvent
       const xEnd = event.screenX
       const yEnd = event.screenY
-      if (xEnd > xStart && xEnd - xStart > 50 && Math.abs(yStart - yEnd) <= 100) {
-        direction = 'right'
-      }
-      else if (xEnd < xStart && xStart - xEnd > 50 && Math.abs(yStart - yEnd) <= 100) {
-        direction = 'left'
-      }
-      else if (yStart > yEnd && yStart - yEnd > 50 && Math.abs(xStart - xEnd) <= 100) {
-        direction = 'up'
-      }
-      else if (yEnd > yStart && yEnd - yStart > 50 && Math.abs(xStart - xEnd) <= 100) {
-        direction = 'down'
-      }
-
+      const direction = this.getDirection(xStart, xEnd, yStart, yEnd)
+      
       this.moveTo(direction, event.currentTarget as HTMLElement)
-      this.hasFour({ clear: true })
-      this.render()
+      this.connectFour({ clear: true })
+
+      setTimeout(() => {
+        this.render()
+      }, 250);
     }))
   }
 
   moveTo(direction: string, target: HTMLElement) {
     const id = +target.id
     const cell = this.findCell(id)
-    const rowId = cell.row - 1
-    const cellId = this.board[rowId].findIndex(cell => cell.id == id)
+    const rowId = cell.rowId
+    const cellId = cell.index
     const currentValue = cell.value
 
     switch (direction) {
@@ -99,53 +87,68 @@ export class Game {
         const cellRight = this.board[rowId][cellId + 1]
         cell.setColor(cellRight.value)
         cellRight.setColor(currentValue)
+        target.classList.add('right')
         break;
       case 'left':
         const cellLeft = this.board[rowId][cellId - 1]
         cell.setColor(cellLeft.value)
         cellLeft.setColor(currentValue)
+        target.classList.add('left')
         break;
       case 'up':
         const cellUp = this.board[rowId - 1][cellId]
         cell.setColor(cellUp.value)
         cellUp.setColor(currentValue)
+        target.classList.add('up')
         break;
       case 'down':
         const cellDown = this.board[rowId + 1][cellId]
         cell.setColor(cellDown.value)
         cellDown.setColor(currentValue)
+        target.classList.add('down')
         break;
-
+      default:
+        break;
     }
-    this.render()
   }
 
-  hasFour(options = { clear: false }) {
-
+  connectFour(options = { clear: false }) {
+    let equals: Cell[] = []
     for (let i = 0; i < this.row; i++) {
-      const currentRow = this.board[i]
-      let qty = 0
+      let equalsInRow: Cell[] = []
       for (let j = 0; j < this.column - 1; j++) {
-        const currentCell = currentRow[j]
-        const nextCell = currentRow[j + 1]
-        currentCell.value === nextCell.value ? qty++ : qty = 0
-        if (qty === 3) {
-          options.clear && this.clear(currentCell.value, this.board[i])
-          return true
+        const currentCell = this.board[i][j]
+        const nextCell = this.board[i][j + 1]
+        if (currentCell.value === nextCell.value) {
+          equalsInRow.push(currentCell)
+        }
+        else {
+          equalsInRow = []
+        }
+        if (equalsInRow.length >= 3) {
+          equals = [...equalsInRow, nextCell]
         }
       }
     }
     for (let i = 0; i < this.column; i++) {
-      let qty = 0
+      let equalsInColumn: Cell[] = []
       for (let j = 0; j < this.row - 1; j++) {
         const currentCell = this.board[j][i]
         const nextCell = this.board[j + 1][i]
-        currentCell.value === nextCell.value ? qty++ : qty = 0
-        if (qty === 3) {
-          options.clear && this.clear(currentCell.value, this.board.map(row => row[i]))
-          return true
+        if (currentCell.value === nextCell.value) {
+          equalsInColumn.push(currentCell)
+        }
+        else {
+          equalsInColumn = []
+        }
+        if (equalsInColumn.length >= 3) {
+          equals = [...equals, ...equalsInColumn, nextCell]
         }
       }
+    }
+    if (equals.length > 3) {
+      options.clear && this.clear(equals)
+      return true
     }
     return false
   }
@@ -156,7 +159,27 @@ export class Game {
     return this.board[rowId][columnId]
   }
 
-  clear(val : string, arr: Cell[]){
-    arr.forEach(cell => cell.value === val && cell.setColor())
+  clear(equals: Cell[]) {
+    const elementList = equals.map(cell => document.getElementById(`${cell.id}`))
+    equals.forEach(cell => cell.setColor())
+    elementList.forEach(el => el?.classList.add('clear'))
+  }
+
+  getDirection(x1: number, x2: number, y1: number, y2: number): string {
+    if (x2 > x1 && x2 - x1 > 50 && Math.abs(y1 - y2) <= 100) {
+      return 'right'
+    }
+    else if (x2 < x1 && x1 - x2 > 50 && Math.abs(y1 - y2) <= 100) {
+      return 'left'
+    }
+    else if (y1 > y2 && y1 - y2 > 50 && Math.abs(x1 - x2) <= 100) {
+      return 'up'
+    }
+    else if (y2 > y1 && y2 - y1 > 50 && Math.abs(x1 - x2) <= 100) {
+      return 'down'
+    }
+    else {
+      return ''
+    }
   }
 }
