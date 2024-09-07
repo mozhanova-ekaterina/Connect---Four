@@ -44,8 +44,8 @@ export class Game {
       return (
         boardElement?.insertAdjacentHTML('beforeend',
           `
-            <div class='cell' id='${cell.index}' data-value='${cell.value}' >
-              <div class='circle' draggable="true" style='background:${cell.value}'></div>
+            <div class='cell' id='${cell.id}' data-value='${cell.value}' >
+              <div class='circle' draggable="true" style='background:${cell.value}'>${cell.id}</div>
             </div>
           `
         )
@@ -64,24 +64,15 @@ export class Game {
       xStart = event.screenX
       yStart = event.screenY
     }))
-    // cells.forEach(cell => cell.addEventListener('drag', e => {
+    // cells.forEach(cell => cell.addEventListener('dragover', e => {
     //   const event = e as DragEvent
-    //   if(Math.abs(xStart - event.screenX) > 150 || Math.abs(yStart - event.screenY) > 150){
-    //     const target = event.currentTarget as HTMLElement
+    //   event.preventDefault()//for drop event work
 
-    //   }
     // }))
-    cells.forEach(cell => cell.addEventListener('dragover', e => {
-      const event = e as DragEvent
-      event.preventDefault()//for drop event work
-
-    }))
-    cells.forEach(cell => cell.addEventListener('drop', e => {
-      const target = e.currentTarget as HTMLElement
-      const id = +target.id
-      const row = Math.ceil(id / this.column)
-
-    }))
+    // cells.forEach(cell => cell.addEventListener('drop', e => {
+    //   const target = e.currentTarget as HTMLElement
+    //   const id = +target.id      
+    // }))
     cells.forEach(cell => cell.addEventListener('dragend', e => {
       const event = e as DragEvent
       const xEnd = event.screenX
@@ -101,6 +92,9 @@ export class Game {
 
       this.moveTo(direction, event.currentTarget as HTMLElement)
 
+      if(this.hasFour()){
+
+      }
       // console.log(event);
 
 
@@ -111,7 +105,7 @@ export class Game {
     const id = +target.id
     const cell = this.findCell(id)
     const rowId = cell.row - 1
-    const cellId = this.board[rowId].findIndex(cell => cell.index == id)
+    const cellId = this.board[rowId].findIndex(cell => cell.id == id)
     const currentValue = cell.value
 
     switch (direction) {
@@ -141,61 +135,57 @@ export class Game {
   }
 
   hasFour(row?: number, column?: number) {
-    if (row && column) {
-      const currentCell = this.board[row - 1][column - 1]
-      const currentValue = currentCell.value
-      let qty = 0
-      for (let i = 0; i < this.row - 1; i++) {
-        this.board[i][column - 1].value === currentValue && this.board[i + 1][column - 1].value === currentValue ? qty++ : qty = 0
-        if (qty === 3) {
-          return true
-        }
-      }
-      for (let i = 0; i < this.column - 1; i++) {
-        this.board[row - 1][i].value === currentValue && this.board[row - 1][i + 1].value === currentValue ? qty++ : qty = 0
-        if (qty === 3) {
-          return true
-        }
-      }
-      return false
-    }
-    else {
-      for (let i = 0; i < this.row; i++) {
-        const currentRow = this.board[i]
-        let qty = 0
-        for (let j = 0; j < this.column - 1; j++) {
-          const currentCell = currentRow[j]
-          const nextCell = currentRow[j + 1]
-          if (currentCell.value === nextCell.value) {
-            qty++
-            if (qty === 3) {
-              return true
-            }
-          }
-          else if (currentCell.value !== nextCell.value) {
-            qty = 0
-          }
-        }
-      }
-      for (let i = 0; i < this.column; i++) {
-        let qty = 0
-        for (let j = 0; j < this.row - 1; j++) {
-          const currentCell = this.board[j][i]
-          const nextCell = this.board[j + 1][i]
-          if (currentCell.value === nextCell.value) {
-            qty++
-            if (qty === 3) {
-              return true
-            }
-          }
-          else if (currentCell.value !== nextCell.value) {
-            qty = 0
-          }
-        }
-      }
-      return false
-    }
+    // const currentCell = this.board[row - 1][column - 1]
+    // const currentValue = currentCell.value
+    // let qty = 0
+    // for (let i = 0; i < this.row - 1; i++) {
+    //   this.board[i][column - 1].value === currentValue && this.board[i + 1][column - 1].value === currentValue ? qty++ : qty = 0
+    //   if (qty === 3) {
+    //     return true
+    //   }
+    // }
+    // for (let i = 0; i < this.column - 1; i++) {
+    //   this.board[row - 1][i].value === currentValue && this.board[row - 1][i + 1].value === currentValue ? qty++ : qty = 0
+    //   if (qty === 3) {
+    //     return true
+    //   }
+    // }
+    // return false
 
+    for (let i = 0; i < this.row; i++) {
+      const currentRow = this.board[i]
+      let qty = 0
+      for (let j = 0; j < this.column - 1; j++) {
+        const currentCell = currentRow[j]
+        const nextCell = currentRow[j + 1]
+        if (currentCell.value === nextCell.value) {
+          qty++
+          if (qty === 3) {
+            return true
+          }
+        }
+        else if (currentCell.value !== nextCell.value) {
+          qty = 0
+        }
+      }
+    }
+    for (let i = 0; i < this.column; i++) {
+      let qty = 0
+      for (let j = 0; j < this.row - 1; j++) {
+        const currentCell = this.board[j][i]
+        const nextCell = this.board[j + 1][i]
+        if (currentCell.value === nextCell.value) {
+          qty++
+          if (qty === 3) {
+            return true
+          }
+        }
+        else if (currentCell.value !== nextCell.value) {
+          qty = 0
+        }
+      }
+    }
+    return false
   }
 
   findCell(id: number): Cell {
