@@ -5,11 +5,11 @@ export class Cell {
   colors: string[] = colors
   value: string = ''
   index: number
-  row: number
+  rowId: number
   constructor(id: number, column: number, row: number) {
     this.id = id
     this.index = column - 1
-    this.row = row
+    this.rowId = row - 1
   }
 
   setColor(val?: string): void {
