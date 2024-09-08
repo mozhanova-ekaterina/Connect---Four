@@ -1,8 +1,18 @@
 import { Game } from "./Game";
 
-const game = new Game(7, 8)
 const restart = document.querySelector('.restart') as HTMLElement
-const difficult = document.getElementById('difficult')
+const selectDifficult = document.getElementById('difficult')
+let difficult: string = '7x8'
+const game = new Game(difficult)
+
+selectDifficult?.addEventListener('click', (e) => {
+  const select = e.currentTarget as HTMLSelectElement
+  const newValue = select.value
+  
+  if (newValue != difficult) {
+    difficult = newValue
+    game.restart(difficult)
+  }
+})
 restart.addEventListener('click', () => game.restart())
-difficult?.addEventListener('click', (e) => game.changeDifficult(e.currentTarget as HTMLSelectElement))
 game.start()

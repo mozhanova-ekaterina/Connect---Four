@@ -5,9 +5,9 @@ export class Game {
   row: number
   column: number
   size: number
-  constructor(n: number, m: number) {
-    this.row = n
-    this.column = m
+  constructor(difficult: string) {
+    this.row = +difficult.split('x')[0]
+    this.column = +difficult.split('x')[1]
     this.size = this.column * this.row
   }
 
@@ -62,10 +62,9 @@ export class Game {
       const xEnd = event.screenX
       const yEnd = event.screenY
       const direction = this.getDirection(xStart, xEnd, yStart, yEnd)
-      
+
       this.moveTo(direction, event.currentTarget as HTMLElement)
       this.connectFour({ clear: true })
-
       setTimeout(() => {
         this.render()
       }, 250);
@@ -85,24 +84,29 @@ export class Game {
         cell.setColor(cellRight.value)
         cellRight.setColor(currentValue)
         target.classList.add('right')
+        target.nextElementSibling?.classList.add('left')
+
         break;
       case 'left':
         const cellLeft = this.board[rowId][cellId - 1]
         cell.setColor(cellLeft.value)
         cellLeft.setColor(currentValue)
         target.classList.add('left')
+        target.previousElementSibling?.classList.add('right')
         break;
       case 'up':
         const cellUp = this.board[rowId - 1][cellId]
         cell.setColor(cellUp.value)
         cellUp.setColor(currentValue)
         target.classList.add('up')
+        document.getElementById(`${+target.id - this.column}`)?.classList.add('down')
         break;
       case 'down':
         const cellDown = this.board[rowId + 1][cellId]
         cell.setColor(cellDown.value)
         cellDown.setColor(currentValue)
         target.classList.add('down')
+        document.getElementById(`${+target.id + this.column}`)?.classList.add('up')
         break;
       default:
         break;
@@ -162,7 +166,8 @@ export class Game {
     elementList.forEach(el => el?.classList.add('clear'))
     setTimeout(() => {
       this.render()
-    }, 250);  }
+    }, 250);
+  }
 
   getDirection(x1: number, x2: number, y1: number, y2: number): string {
     if (x2 > x1 && x2 - x1 > 50 && Math.abs(y1 - y2) <= 100) {
@@ -182,7 +187,15 @@ export class Game {
     }
   }
 
-  restart(){
-    window.location.reload()
+  restart(difficult?: string) {
+    if (difficult) {
+      this.row = +difficult.split('x')[0]
+      this.column = +difficult.split('x')[1]
+      this.render()
+    }
+    else {
+      window.location.reload()
+    }
+
   }
 }

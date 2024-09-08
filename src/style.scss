@@ -1,8 +1,10 @@
-*{
+* {
   margin: 0;
   box-sizing: border-box;
 }
-
+body {
+  font-family: "Roboto", sans-serif;
+}
 .game {
   height: 100vh;
   background-color: #adffff;
@@ -17,27 +19,70 @@
     gap: 5px;
   }
   .cell {
-    cursor: pointer; 
-    &.clear .circle{
-      transform:  rotate3d(0,1,0,180deg);
+    cursor: pointer;
+    &.clear .circle {
+      transform: rotate3d(0, 1, 0, 180deg);
     }
-    &.left .circle{
+    &.left .circle {
       transform: translateX(-100px);
     }
-    &.right .circle{
+    &.right .circle {
       transform: translateX(100px);
     }
-    &.up .circle{
+    &.up .circle {
       transform: translateY(-100px);
     }
-    &.down .circle{
+    &.down .circle {
       transform: translateY(100px);
     }
   }
-  .circle{
-    transition: all .25s linear; 
+  .circle {
+    transition: all 0.25s linear;
     border-radius: 50%;
     width: 100%;
     height: 100%;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+
+    .restart {
+      padding: 7px 10px;
+      border-radius: 1em;
+      outline: none;
+      border: #f664af 2px solid;
+      background-color: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: inherit;
+      &:hover {
+        background-color: #f664af;
+        color: #fff;
+      }
+    }
+    .difficult {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .select {
+        cursor: pointer;
+        padding: 7px 10px;
+        border-radius: 1em;
+        border: #f664af 2px solid;
+        background-color: transparent;
+        outline: none;
+        transition: all 0.3s ease;
+        &:hover {
+          border-color: #270a1f;
+          background-color: #270a1f;
+          color: #fff;
+        }
+      }
+    }
+    .hide {
+      display: none;
+    }
   }
 }
