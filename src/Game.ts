@@ -24,9 +24,6 @@ export class Game {
       }
       this.board.push(row)
     }
-
-    this.board.forEach(row => row.forEach(cell => cell.setColor()))
-
     while (this.connectFour()) {
       this.board.forEach(row => row.forEach(cell => cell.setColor()))
     }
@@ -163,7 +160,9 @@ export class Game {
     const elementList = equals.map(cell => document.getElementById(`${cell.id}`))
     equals.forEach(cell => cell.setColor())
     elementList.forEach(el => el?.classList.add('clear'))
-  }
+    setTimeout(() => {
+      this.render()
+    }, 250);  }
 
   getDirection(x1: number, x2: number, y1: number, y2: number): string {
     if (x2 > x1 && x2 - x1 > 50 && Math.abs(y1 - y2) <= 100) {
@@ -181,5 +180,9 @@ export class Game {
     else {
       return ''
     }
+  }
+
+  restart(){
+    window.location.reload()
   }
 }

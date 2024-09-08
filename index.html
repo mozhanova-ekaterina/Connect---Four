@@ -1,16 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect four</title>
-    <link rel="stylesheet" href="/src/style.scss">
+    <link rel="stylesheet" href="/src/style.scss" />
   </head>
   <body>
     <div id="app">
       <div class="game">
         <div class="board"></div>
-        <button class="restart">restart</button>
+        <div class="controls">
+          <button class="restart">Заново</button>
+          <label for="difficult">Сложность</label>
+          <select name="Сложность" id="difficult">
+            <option value="7x8">7x8</option>
+            <option value="6x7">6x7</option>
+          </select>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
